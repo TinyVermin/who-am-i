@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.Turn;
-import com.eleks.academy.whoami.networking.client.ClientPlayer;
 
 public class RandomGame implements Game {
 
@@ -26,12 +25,12 @@ public class RandomGame implements Game {
 	private final List<String> availableCharacters;
 	private Turn currentTurn;
 
-	
-	private final static String YES = "Yes";
-	private final static String NO = "No";
-	
-	public RandomGame(List<Player> players, List<String> availableCharacters) { 
-		this.availableCharacters = new ArrayList<String>(availableCharacters);
+
+	private static final String YES = "Yes";
+	private static final String NO = "No";
+
+	public RandomGame(List<Player> players, List<String> availableCharacters) {
+		this.availableCharacters = new ArrayList<>(availableCharacters);
 		this.players = new ArrayList<>(players.size());
 		players.forEach(this::addPlayer);
 	}
@@ -67,26 +66,26 @@ public class RandomGame implements Game {
 			answers = currentTurn.getOtherPlayers().stream()
 					.map(player -> player.answerGuess(guess, this.playersCharacter.get(guessersName)))
 					.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-			
+			long positiveCount = answers.stream().filter(YES::equals).count();
+			long negativeCount = answers.stream().filter(NO::equals).count();
+
 			boolean win = positiveCount > negativeCount;
-			
+
 			if (win) {
 				players.remove(currentGuesser);
 			}
 			return win;
-			
+
 		} else {
 			String question = currentGuesser.getQuestion();
 			answers = currentTurn.getOtherPlayers().stream()
 				.map(player -> player.answerQuestion(question, this.playersCharacter.get(guessersName)))
 				.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+			long positiveCount = answers.stream().filter(YES::equals).count();
+			long negativeCount = answers.stream().filter(NO::equals).count();
 			return positiveCount > negativeCount;
 		}
-		
+
 	}
 
 	private void assignCharacters() {
@@ -103,9 +102,9 @@ public class RandomGame implements Game {
 				throw new RuntimeException("Player did not provide a name within %d %s".formatted(DURATION, UNIT));
 			}
 		}).forEach(name -> this.playersCharacter.put(name, this.getRandomCharacter()));
-		
+
 	}
-	
+
 	@Override
 	public void initGame() {
 		this.assignCharacters();
@@ -117,7 +116,7 @@ public class RandomGame implements Game {
 	public boolean isFinished() {
 		return players.size() == 1;
 	}
-	
+
 	private String getRandomCharacter() {
 		int randomPos = (int)(Math.random() * this.availableCharacters.size());
 		// TODO: Ensure player never receives own suggested character
@@ -132,7 +131,7 @@ public class RandomGame implements Game {
 	@Override
 	public void play() {
 		boolean gameStatus = true;
-		
+
 		while (gameStatus) {
 			boolean turnResult = this.makeTurn();
 
